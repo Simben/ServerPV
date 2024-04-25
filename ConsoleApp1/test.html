@@ -1,0 +1,44 @@
+<html><head>
+
+          
+              <script type="text/javascript">
+
+                  const RefreshPlayer1PV = async () => {
+                      const response = await fetch('http://localhost:8080/Player/LifePoint/1');
+                      const myJson = await response.text(); //extract JSON from the http response
+                      document.getElementById('Player1_PV').innerText = myJson;
+                      // do something with myJson
+                  }
+
+                  const RefreshPlayer2PV = async () => {
+                      const response = await fetch('http://localhost:8080/Player/LifePoint/2');
+                      const myJson = await response.text(); //extract JSON from the http response
+                      document.getElementById('Player2_PV').innerText = myJson;
+                      // do something with myJson
+                  }
+
+                  var intervalId = setInterval(function () {
+                      RefreshPlayer1PV();
+                      RefreshPlayer2PV();
+                  }, 500);
+
+
+                  function codeAddress() {
+                      intervalId();
+                  }
+                  window.onload = codeAddress;
+          
+
+</script>
+
+</head>
+
+      <body>
+          <p>Player 1 <span id="Player1_PV">20</span></p>
+          <p>Player 2 <span id="Player2_PV">20</span></p>
+
+          
+
+
+
+      </body></html>
