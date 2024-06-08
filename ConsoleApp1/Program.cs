@@ -12,6 +12,20 @@ namespace HttpListenerExample
 {
     class HttpServer
     {
+        public static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            throw new Exception("No network adapters with an IPv4 address in the system!");
+        }
+
+
         static int PVj1 = 20;
         static int PVj2 = 20;
 
@@ -156,14 +170,17 @@ namespace HttpListenerExample
         }
 
 
-        static bool debug = false;
+        static bool debug = true;
         public static void Main(string[] args)
         {
+            string localIpUrl = $"http://{GetLocalIPAddress()}:8080/";
             // Create a Http server and start listening for incoming connections
             listener = new HttpListener();
             listener.Prefixes.Add(url);
+            listener.Prefixes.Add(localIpUrl);
             listener.Start();
             Console.WriteLine("Listening for connections on {0}", url);
+            Console.WriteLine("Listening for connections on {0}", localIpUrl);
             Console.WriteLine($"For Score Keep Go To : {url}");
             Console.WriteLine($"For results Go To : {url}/test");
 
