@@ -12,17 +12,19 @@ namespace HttpListenerExample
 {
     class HttpServer
     {
-        public static string GetLocalIPAddress()
+        public static List<string> GetLocalIPAddress()
         {
+            List<string> Result = new List<string>();
             var host = Dns.GetHostEntry(Dns.GetHostName());
             foreach (var ip in host.AddressList)
             {
                 if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                 {
-                    return ip.ToString();
+                    Result.Add( ip.ToString());
                 }
             }
-            throw new Exception("No network adapters with an IPv4 address in the system!");
+            return Result;
+            //throw new Exception("No network adapters with an IPv4 address in the system!");
         }
 
 
@@ -51,6 +53,12 @@ namespace HttpListenerExample
         public static async Task HandleIncomingConnections()
         {
             bool runServer = true;
+            DirectoryInfo d = new DirectoryInfo(@"www"); //Assuming Test is your Folder
+            FileInfo[] Files = d.GetFiles("*.*"); //Getting Text files
+            List< string> WWW = Files.Select(p=>p.Name).ToList();
+            List<string> Pages = WWW.Select(p => "/" + p.ToLower()).ToList();
+            string seekedURL = "";
+
 
             // While a user hasn't visited the `shutdown` url, keep on handling requests
             while (runServer)
@@ -72,30 +80,44 @@ namespace HttpListenerExample
                     Console.WriteLine(req.UserAgent);
                     Console.WriteLine();
                 }
+                seekedURL = req.Url.AbsolutePath;
+            StartSearch:
                 // If `shutdown` url requested w/ POST, then shutdown the server after serving the page
-                if ((req.HttpMethod == "POST") && (req.Url.AbsolutePath == "/shutdown"))
+                if ((req.HttpMethod == "POST") && (seekedURL == "/shutdown"))
                 {
                     Console.WriteLine("Shutdown requested");
                     runServer = false;
                 }
-                else if ((req.HttpMethod == "GET") && (req.Url.AbsolutePath == "/"))
+                else if ((req.HttpMethod == "GET") && (seekedURL == "/"))
                 {
-                    byte[] data = (System.IO.File.ReadAllBytes("toto.html"));
-                    resp.ContentType = "text/html";
-                    resp.ContentEncoding = Encoding.UTF8;
-                    resp.ContentLength64 = data.LongLength;
-                    await resp.OutputStream.WriteAsync(data, 0, data.Length);
+                        seekedURL = "/index.html";
+                        goto StartSearch;
                 }
-                else if ((req.HttpMethod == "GET") && (req.Url.AbsolutePath == "/test"))
+                else if ((req.HttpMethod == "GET") && (Pages.Contains(seekedURL.ToLower())))
+                {
+                    foreach (var page in WWW)
+                    {
+                        if ("/" + page.ToLower() == seekedURL.ToLower())
+                        {
+                            byte[] data = (System.IO.File.ReadAllBytes(@"www/" + page));
+                            resp.ContentType = "text/html";
+                            resp.ContentEncoding = Encoding.UTF8;
+                            resp.ContentLength64 = data.LongLength;
+                            await resp.OutputStream.WriteAsync(data, 0, data.Length);
+                            break;
+                        }
+                    }
+                }
+                /*else if ((req.HttpMethod == "GET") && (req.Url.AbsolutePath == "/results"))
                 {
                     byte[] data = (System.IO.File.ReadAllBytes("test.html"));
                     resp.ContentType = "text/html";
                     resp.ContentEncoding = Encoding.UTF8;
                     resp.ContentLength64 = data.LongLength;
                     await resp.OutputStream.WriteAsync(data, 0, data.Length);
-                }
+                }*/
 
-                else if ((req.HttpMethod == "GET") && (req.Url.AbsolutePath == "/Player/LifePoint/1"))
+                else if ((req.HttpMethod == "GET") && (seekedURL == "/Player/LifePoint/1"))
                 {
                     byte[] data = Encoding.UTF8.GetBytes(PVj1.ToString());
                     resp.ContentType = "text/html";
@@ -104,7 +126,7 @@ namespace HttpListenerExample
                     resp.Headers.Add("Access-Control-Allow-Origin: *");
                     await resp.OutputStream.WriteAsync(data, 0, data.Length);
                 }
-                else if ((req.HttpMethod == "GET") && (req.Url.AbsolutePath == "/Player/LifePoint/2"))
+                else if ((req.HttpMethod == "GET") && (seekedURL == "/Player/LifePoint/2"))
                 {
                     byte[] data = Encoding.UTF8.GetBytes(PVj2.ToString());
                     resp.ContentType = "text/html";
@@ -112,7 +134,7 @@ namespace HttpListenerExample
                     resp.ContentLength64 = data.LongLength;
                     await resp.OutputStream.WriteAsync(data, 0, data.Length);
                 }
-                else if ((req.HttpMethod == "PUT") && (req.Url.AbsolutePath == "/Player/LifePoint/1/increment"))
+                else if ((req.HttpMethod == "PUT") && (seekedURL == "/Player/LifePoint/1/increment"))
                 {
                     PVj1++;
                     byte[] data = Encoding.UTF8.GetBytes(PVj1.ToString());
@@ -121,7 +143,7 @@ namespace HttpListenerExample
                     resp.ContentLength64 = data.LongLength;
                     await resp.OutputStream.WriteAsync(data, 0, data.Length);
                 }
-                else if ((req.HttpMethod == "PUT") && (req.Url.AbsolutePath == "/Player/LifePoint/2/increment"))
+                else if ((req.HttpMethod == "PUT") && (seekedURL == "/Player/LifePoint/2/increment"))
                 {
                     PVj2++;
                     byte[] data = Encoding.UTF8.GetBytes(PVj2.ToString());
@@ -130,7 +152,7 @@ namespace HttpListenerExample
                     resp.ContentLength64 = data.LongLength;
                     await resp.OutputStream.WriteAsync(data, 0, data.Length);
                 }
-                else if ((req.HttpMethod == "PUT") && (req.Url.AbsolutePath == "/Player/LifePoint/1/decrement"))
+                else if ((req.HttpMethod == "PUT") && (seekedURL == "/Player/LifePoint/1/decrement"))
                 {
                     PVj1--;
                     byte[] data = Encoding.UTF8.GetBytes(PVj1.ToString());
@@ -139,7 +161,7 @@ namespace HttpListenerExample
                     resp.ContentLength64 = data.LongLength;
                     await resp.OutputStream.WriteAsync(data, 0, data.Length);
                 }
-                else if ((req.HttpMethod == "PUT") && (req.Url.AbsolutePath == "/Player/LifePoint/2/decrement"))
+                else if ((req.HttpMethod == "PUT") && (seekedURL == "/Player/LifePoint/2/decrement"))
                 {
                     PVj2--;
                     byte[] data = Encoding.UTF8.GetBytes(PVj2.ToString());
@@ -150,19 +172,28 @@ namespace HttpListenerExample
                 }
 
                 // Make sure we don't increment the page views counter if `favicon.ico` is requested
-                else if (req.Url.AbsolutePath != "/favicon.ico")
-                    pageViews += 1;
+                else //if (seekedURL != "/favicon.ico")
+                {
+                    
+                    resp.StatusCode = 404;
+                    byte[] data = Encoding.UTF8.GetBytes("404 Not Found");
+                    resp.ContentType = "text/html";
+                    resp.ContentEncoding = Encoding.UTF8;
+                    resp.ContentLength64 = data.LongLength;
+                    await resp.OutputStream.WriteAsync(data, 0, data.Length);
+                }
+
 
                 // Write the response info
-                else
-                { 
+                /*else
+                {
                     string disableSubmit = !runServer ? "disabled" : "";
                     byte[] data = Encoding.UTF8.GetBytes(String.Format(pageData, pageViews, disableSubmit));
                     resp.ContentType = "text/html";
                     resp.ContentEncoding = Encoding.UTF8;
                     resp.ContentLength64 = data.LongLength;
                     await resp.OutputStream.WriteAsync(data, 0, data.Length);
-                }
+                }*/
                 // Write out to the response stream (asynchronously), then close it
                 
                 resp.Close();
@@ -173,16 +204,25 @@ namespace HttpListenerExample
         static bool debug = true;
         public static void Main(string[] args)
         {
-            string localIpUrl = $"http://{GetLocalIPAddress()}:8080/";
+
             // Create a Http server and start listening for incoming connections
             listener = new HttpListener();
             listener.Prefixes.Add(url);
-            listener.Prefixes.Add(localIpUrl);
-            listener.Start();
+            Console.WriteLine("version 0.0.3");
             Console.WriteLine("Listening for connections on {0}", url);
-            Console.WriteLine("Listening for connections on {0}", localIpUrl);
-            Console.WriteLine($"For Score Keep Go To : {url}");
-            Console.WriteLine($"For results Go To : {url}/test");
+
+            var IPs = GetLocalIPAddress();
+            for (int i = 0; i < IPs.Count; i++)
+            {
+                IPs[i] = $"http://{IPs[i]}:8080/";
+                listener.Prefixes.Add(IPs[i]);
+                Console.WriteLine("Listening for connections on {0}", IPs[i]);
+            }
+            
+            listener.Start();
+            Console.WriteLine("Server Started");
+            Console.WriteLine("For Score Keep Go To : {Base_Address}/scorekeep");
+            Console.WriteLine("For results Go To : {Base_Address}/results");
 
             // Handle requests
             Task listenTask = HandleIncomingConnections();

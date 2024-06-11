@@ -250,7 +250,7 @@ body label {
 <script>
     
     const Increment = async (player) => {
-        const response = await fetch('http://localhost:8080/Player/LifePoint/'+player+'/increment', {
+        const response = await fetch('/Player/LifePoint/'+player+'/increment', {
             method: 'PUT',
             body: "", // string or object
             headers: {
@@ -263,7 +263,7 @@ body label {
     }
 
     const Decrement = async (player) => {
-        const response = await fetch('http://localhost:8080/Player/LifePoint/' + player + '/decrement', {
+        const response = await fetch('/Player/LifePoint/' + player + '/decrement', {
             method: 'PUT',
             body: "", // string or object
             headers: {
@@ -308,21 +308,5 @@ body label {
     </div>
   </div>
 </div>
-
- <!-- <script crossorigin="" type="text/javascript" src="https://codesandbox.io/static/js/vendors~app~codemirror-editor~monaco-editor~sandbox.a0a9d9986.chunk.js"></script>
-    <script crossorigin="" type="text/javascript" src="https://codesandbox.io/static/js/common-sandbox.09f563264.chunk.js"></script>
-    <script crossorigin="" type="text/javascript" src="https://codesandbox.io/static/js/vendors~app~sandbox.d07ab9245.chunk.js"></script>
-    <script crossorigin="" type="text/javascript" src="https://codesandbox.io/static/js/vendors~sandbox.e008a4edf.chunk.js"></script>
-    <script crossorigin="" type="text/javascript" src="https://codesandbox.io/static/js/default~app~embed~sandbox.101ce75b1.chunk.js"></script>
-    <script crossorigin="" type="text/javascript" src="https://codesandbox.io/static/js/sandbox.1077582dc.js"></script>
-    <script crossorigin="" type="text/javascript" src="https://codesandbox.io/static/js/banner.d9cb10a38.js"></script>
-  <script>-->
   
-
-</script>
-  <!--<script crossorigin="" type="text/javascript" src="https://codesandbox.io/static/js/watermark-button.eeb14a97b.js">-->
-  </script>
-  
-
-
 </body></html>

@@ -4,29 +4,32 @@
               <script type="text/javascript">
 
                   const RefreshPlayer1PV = async () => {
-                      const response = await fetch('http://localhost:8080/Player/LifePoint/1');
+                      const response = await fetch('/Player/LifePoint/1');
                       const myJson = await response.text(); //extract JSON from the http response
                       document.getElementById('Player1_PV').innerText = myJson;
                       // do something with myJson
                   }
 
                   const RefreshPlayer2PV = async () => {
-                      const response = await fetch('http://localhost:8080/Player/LifePoint/2');
+                      const response = await fetch('/Player/LifePoint/2');
                       const myJson = await response.text(); //extract JSON from the http response
                       document.getElementById('Player2_PV').innerText = myJson;
                       // do something with myJson
                   }
 
-                  var intervalId = setInterval(function () {
+                  function refreshAll()
+                  {
                       RefreshPlayer1PV();
                       RefreshPlayer2PV();
-                  }, 500);
-
-
-                  function codeAddress() {
-                      intervalId();
                   }
-                  window.onload = codeAddress;
+
+                  var intervalId = setInterval(refreshAll, 500);
+
+
+                  /*function codeAddress() {
+                      setInterval();
+                  }
+                  window.onload = codeAddress;*/
           
 
 </script>
