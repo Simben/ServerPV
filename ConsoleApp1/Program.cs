@@ -10,6 +10,13 @@ using System.Threading.Tasks;
 
 namespace HttpListenerExample
 {
+    public class Player
+    {
+        public string Name { get; set; }
+        public int LifePoint { get; set; }
+        public int PoisonCounter { get; set; }
+    }
+
     class HttpServer
     {
         public static List<string> GetLocalIPAddress()
@@ -20,7 +27,7 @@ namespace HttpListenerExample
             {
                 if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                 {
-                    Result.Add( ip.ToString());
+                    Result.Add(ip.ToString());
                 }
             }
             return Result;
@@ -28,8 +35,8 @@ namespace HttpListenerExample
         }
 
 
-        static int PVj1 = 20;
-        static int PVj2 = 20;
+        static Player PVj1 = new Player() { LifePoint = 20, Name = "Player_1" };
+        static Player PVj2 = new Player() { LifePoint = 20, Name = "Player_2" };
 
         public static HttpListener listener;
         public static string url = "http://localhost:8080/";
@@ -55,7 +62,7 @@ namespace HttpListenerExample
             bool runServer = true;
             DirectoryInfo d = new DirectoryInfo(@"www"); //Assuming Test is your Folder
             FileInfo[] Files = d.GetFiles("*.*"); //Getting Text files
-            List< string> WWW = Files.Select(p=>p.Name).ToList();
+            List<string> WWW = Files.Select(p => p.Name).ToList();
             List<string> Pages = WWW.Select(p => "/" + p.ToLower()).ToList();
             string seekedURL = "";
 
@@ -90,8 +97,8 @@ namespace HttpListenerExample
                 }
                 else if ((req.HttpMethod == "GET") && (seekedURL == "/"))
                 {
-                        seekedURL = "/index.html";
-                        goto StartSearch;
+                    seekedURL = "/index.html";
+                    goto StartSearch;
                 }
                 else if ((req.HttpMethod == "GET") && (Pages.Contains(seekedURL.ToLower())))
                 {
@@ -117,54 +124,125 @@ namespace HttpListenerExample
                     await resp.OutputStream.WriteAsync(data, 0, data.Length);
                 }*/
 
-                else if ((req.HttpMethod == "GET") && (seekedURL == "/Player/LifePoint/1"))
+                else if ((req.HttpMethod == "GET") && (seekedURL.ToLower() == "/player/lifepoint/1"))
                 {
-                    byte[] data = Encoding.UTF8.GetBytes(PVj1.ToString());
+                    byte[] data = Encoding.UTF8.GetBytes(PVj1.LifePoint.ToString());
                     resp.ContentType = "text/html";
                     resp.ContentEncoding = Encoding.UTF8;
                     resp.ContentLength64 = data.LongLength;
                     resp.Headers.Add("Access-Control-Allow-Origin: *");
                     await resp.OutputStream.WriteAsync(data, 0, data.Length);
                 }
-                else if ((req.HttpMethod == "GET") && (seekedURL == "/Player/LifePoint/2"))
+                else if ((req.HttpMethod == "GET") && (seekedURL.ToLower() == "/player/lifepoint/2"))
                 {
-                    byte[] data = Encoding.UTF8.GetBytes(PVj2.ToString());
+                    byte[] data = Encoding.UTF8.GetBytes(PVj2.LifePoint.ToString());
+                    resp.ContentType = "text/html";
+                    resp.ContentEncoding = Encoding.UTF8;
+                    resp.ContentLength64 = data.LongLength;
+                    resp.Headers.Add("Access-Control-Allow-Origin: *");
+                    await resp.OutputStream.WriteAsync(data, 0, data.Length);
+                }
+                else if ((req.HttpMethod == "GET") && (seekedURL.ToLower() == "/player/name/1"))
+                {
+                    byte[] data = Encoding.UTF8.GetBytes(PVj1.Name.ToString());
+                    resp.ContentType = "text/html";
+                    resp.ContentEncoding = Encoding.UTF8;
+                    resp.ContentLength64 = data.LongLength;
+                    resp.Headers.Add("Access-Control-Allow-Origin: *");
+                    await resp.OutputStream.WriteAsync(data, 0, data.Length);
+                }
+                else if ((req.HttpMethod == "GET") && (seekedURL.ToLower() == "/player/name/2"))
+                {
+                    byte[] data = Encoding.UTF8.GetBytes(PVj2.Name.ToString());
+                    resp.ContentType = "text/html";
+                    resp.ContentEncoding = Encoding.UTF8;
+                    resp.ContentLength64 = data.LongLength;
+                    resp.Headers.Add("Access-Control-Allow-Origin: *");
+                    await resp.OutputStream.WriteAsync(data, 0, data.Length);
+                }
+                else if ((req.HttpMethod == "PUT") && (seekedURL.ToLower() == "/player/lifepoint/1/increment"))
+                {
+                    PVj1.LifePoint++;
+                    byte[] data = Encoding.UTF8.GetBytes(PVj1.LifePoint.ToString());
                     resp.ContentType = "text/html";
                     resp.ContentEncoding = Encoding.UTF8;
                     resp.ContentLength64 = data.LongLength;
                     await resp.OutputStream.WriteAsync(data, 0, data.Length);
                 }
-                else if ((req.HttpMethod == "PUT") && (seekedURL == "/Player/LifePoint/1/increment"))
+                else if ((req.HttpMethod == "PUT") && (seekedURL.ToLower() == "/player/lifepoint/2/increment"))
                 {
-                    PVj1++;
-                    byte[] data = Encoding.UTF8.GetBytes(PVj1.ToString());
+                    PVj2.LifePoint++;
+                    byte[] data = Encoding.UTF8.GetBytes(PVj2.LifePoint.ToString());
                     resp.ContentType = "text/html";
                     resp.ContentEncoding = Encoding.UTF8;
                     resp.ContentLength64 = data.LongLength;
                     await resp.OutputStream.WriteAsync(data, 0, data.Length);
                 }
-                else if ((req.HttpMethod == "PUT") && (seekedURL == "/Player/LifePoint/2/increment"))
+                else if ((req.HttpMethod == "PUT") && (seekedURL.ToLower() == "/player/lifepoint/1/decrement"))
                 {
-                    PVj2++;
-                    byte[] data = Encoding.UTF8.GetBytes(PVj2.ToString());
+                    PVj1.LifePoint--;
+                    byte[] data = Encoding.UTF8.GetBytes(PVj1.LifePoint.ToString());
                     resp.ContentType = "text/html";
                     resp.ContentEncoding = Encoding.UTF8;
                     resp.ContentLength64 = data.LongLength;
                     await resp.OutputStream.WriteAsync(data, 0, data.Length);
                 }
-                else if ((req.HttpMethod == "PUT") && (seekedURL == "/Player/LifePoint/1/decrement"))
+                else if ((req.HttpMethod == "PUT") && (seekedURL.ToLower() == "/player/lifepoint/2/decrement"))
                 {
-                    PVj1--;
-                    byte[] data = Encoding.UTF8.GetBytes(PVj1.ToString());
+                    PVj2.LifePoint--;
+                    byte[] data = Encoding.UTF8.GetBytes(PVj2.LifePoint.ToString());
                     resp.ContentType = "text/html";
                     resp.ContentEncoding = Encoding.UTF8;
                     resp.ContentLength64 = data.LongLength;
                     await resp.OutputStream.WriteAsync(data, 0, data.Length);
                 }
-                else if ((req.HttpMethod == "PUT") && (seekedURL == "/Player/LifePoint/2/decrement"))
+                else if ((req.HttpMethod == "POST") && (seekedURL.ToLower() == "/player/lifepoint/reset"))
                 {
-                    PVj2--;
-                    byte[] data = Encoding.UTF8.GetBytes(PVj2.ToString());
+                    PVj1.LifePoint = 20;
+                    PVj2.LifePoint = 20;
+                    byte[] data = Encoding.UTF8.GetBytes(PVj1.LifePoint.ToString() + PVj2.LifePoint.ToString());
+                    resp.ContentType = "text/html";
+                    resp.ContentEncoding = Encoding.UTF8;
+                    resp.ContentLength64 = data.LongLength;
+                    await resp.OutputStream.WriteAsync(data, 0, data.Length);
+                }
+
+                else if ((req.HttpMethod == "PATCH") && (seekedURL.ToLower() == "/player/1"))
+                {
+                    foreach (string key in req.Headers.AllKeys)
+                    {
+                        if (key.ToLower() == "name")
+                            PVj1.Name = req.Headers[key] ?? "";
+                        else if (key.ToLower() == "lifepoint")
+                        {
+                            int pv = 0;
+                            if (int.TryParse(req.Headers[key] ?? "", out pv))
+                                PVj1.LifePoint = pv;
+                        }
+                    }
+
+                    byte[] data = Encoding.UTF8.GetBytes(PVj1.LifePoint.ToString() + PVj2.LifePoint.ToString());
+                    resp.ContentType = "text/html";
+                    resp.ContentEncoding = Encoding.UTF8;
+                    resp.ContentLength64 = data.LongLength;
+                    await resp.OutputStream.WriteAsync(data, 0, data.Length);
+                }
+
+                else if ((req.HttpMethod == "PATCH") && (seekedURL.ToLower() == "/player/2"))
+                {
+                    foreach (string key in req.Headers.AllKeys)
+                    {
+                        if (key.ToLower() == "name")
+                            PVj2.Name = req.Headers[key] ?? "";
+                        else if (key.ToLower() == "lifepoint")
+                        {
+                            int pv = 0;
+                            if (int.TryParse(req.Headers[key] ?? "", out pv))
+                                PVj2.LifePoint = pv;
+                        }
+                    }
+
+                    byte[] data = Encoding.UTF8.GetBytes(PVj1.LifePoint.ToString() + PVj2.LifePoint.ToString());
                     resp.ContentType = "text/html";
                     resp.ContentEncoding = Encoding.UTF8;
                     resp.ContentLength64 = data.LongLength;
@@ -174,7 +252,7 @@ namespace HttpListenerExample
                 // Make sure we don't increment the page views counter if `favicon.ico` is requested
                 else //if (seekedURL != "/favicon.ico")
                 {
-                    
+
                     resp.StatusCode = 404;
                     byte[] data = Encoding.UTF8.GetBytes("404 Not Found");
                     resp.ContentType = "text/html";
@@ -195,7 +273,7 @@ namespace HttpListenerExample
                     await resp.OutputStream.WriteAsync(data, 0, data.Length);
                 }*/
                 // Write out to the response stream (asynchronously), then close it
-                
+
                 resp.Close();
             }
         }
@@ -218,7 +296,7 @@ namespace HttpListenerExample
                 listener.Prefixes.Add(IPs[i]);
                 Console.WriteLine("Listening for connections on {0}", IPs[i]);
             }
-            
+
             listener.Start();
             Console.WriteLine("Server Started");
             Console.WriteLine("For Score Keep Go To : {Base_Address}/scorekeep");
